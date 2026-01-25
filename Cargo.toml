@@ -6,5 +6,5 @@ edition = "2024"
 [dependencies]
 tokio = {version = "1", features = ["full"]} # Asynchronous runtime 
 tokio-util = {version = "0.7", features = ["codec"]} # Utilities for tokio codec and stream 
-future = "0.3" # Future combinators and utilities 
+futures = "0.3" # Future combinators and utilities 
 bytes = "1" # Utilities for working with byte buffers

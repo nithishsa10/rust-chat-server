@@ -1,7 +1,8 @@
 use std::io::BufReader;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
-use std::net::{SocketAddr, TcpStream};
+use std::net::SocketAddr;
+use tokio::net::TcpStream;
 use std::collections::HashMap;
 
 type Tx = mpsc::UnboundedSender<String>;
