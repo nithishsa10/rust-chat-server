@@ -1,4 +1,4 @@
-use std::io::BufReader;
+use tokio::io::{BufReader, AsyncBufReadExt, AsyncWriteExt};
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
 use std::net::SocketAddr;
@@ -47,7 +47,7 @@ impl ChatServer {
 
         let mut write_task = tokio::spawn(async move {
             while let Some(msg) = rx.recv().await {
-                if writer.write_all(msg.as_bytes()).await {
+                if writer.write_all(msg.as_bytes()).await.is_err() {
                     break;
                 }
             }
@@ -56,10 +56,10 @@ impl ChatServer {
         let server = self.clone();
         
         let mut reader_task = tokio::spawn(async move {
-            let mut line = String::nwe();
+            let mut line = String::new();
             loop {
                 line.clear();
-                match reader.reader_line(&mut line).await {
+                match reader.read_line(&mut line).await {
                     Ok(0) => break,
                     Ok(_) => {
                         let msg = format!("{} : {}", addr, line);
@@ -101,5 +101,6 @@ impl ChatServer {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server = Arc::new(ChatServer::new());
+    server.run("127.0.0.1:8080").await?;
     Ok(())
 }
