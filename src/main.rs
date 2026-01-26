@@ -2,7 +2,7 @@ use tokio::io::{BufReader, AsyncBufReadExt, AsyncWriteExt};
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
 use std::net::SocketAddr;
-use tokio::net::TcpStream;
+use tokio::net::{TcpStream, TcpListener};
 use std::collections::HashMap;
 
 type Tx = mpsc::UnboundedSender<String>;
@@ -83,7 +83,7 @@ impl ChatServer {
     }
 
     async fn run(self: Arc<Self>, addr: &str) -> Result<(), Box<dyn std::error::Error>> {
-        let listener = tokio::net::TcpListener::bind(addr).await?;
+        let listener =TcpListener::bind(addr).await?;
         println!("Chat server running on {}", addr);
 
         loop {
