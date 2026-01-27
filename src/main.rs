@@ -9,7 +9,7 @@ type Tx = mpsc::UnboundedSender<String>;
 type Rx = mpsc::UnboundedReceiver<String>;
 
 struct ChatServer {
-    clients: Arc<Mutex<HashMap<SocketAddr, Tx>>>,
+    clients: Arc<Mutex<HashMap<SocketAddr, Tx>>>, 
 }
 
 impl ChatServer {
