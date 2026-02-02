@@ -1,5 +1,6 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, sqlx::FromRow)]
 pub struct Room {

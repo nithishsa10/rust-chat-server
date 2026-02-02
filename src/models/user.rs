@@ -1,4 +1,4 @@
-use serde::{Dserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
@@ -26,7 +26,7 @@ pub struct UserResponse {
 }
 
 impl From<User> for UserResponse {
-    fn from(u: User) -> Slef {
+    fn from(u: User) -> Self {
        Self { 
             id:             u.id,
             username:       u.username,
@@ -46,7 +46,7 @@ pub struct RegisterRequest {
     pub display_name:   Option<String>,
 }
 
-#[derive(Debug, Deserializse)]
+#[derive(Debug, Deserialize)]
 pub struct LoginRequest {
     pub username:       String,
     pub password:       String,

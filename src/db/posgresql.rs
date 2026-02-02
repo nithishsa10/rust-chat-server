@@ -1,9 +1,7 @@
-use sqlx::PgPool;
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use crate::models::{
-    user::User,
-    room::{Room, RoomMember},
-    message::{Message, DirectMessage},
-};
+use sqlx::{PgPool, Error};
 
+pub async fn create_pool(url: &str) -> Result<PgPool, Error> {
+    PgPool::connect(url)
+    .await
+    .map_err(|e| AppError::DatabaseError(format!("Postgres connection error: {}", e)))
+}
