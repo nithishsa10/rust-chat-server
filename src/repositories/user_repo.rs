@@ -1,6 +1,7 @@
 use sqlx::PgPool;
 use uuid::Uuid;
-
+use crate::models::user::User;
+use crate::error::{AppError, Result};
 pub async fn create_user(
     pool: &PgPool,
     username: &str,
@@ -21,7 +22,7 @@ pub async fn create_user(
     .bind(display_name)
     .fetch_one(pool)
     .await
-    .map_err(|e| AppError::InternalError(format!("Failed to create user: {}", e)))?;
+    .map_err(|e| AppError::Internal(format!("Failed to create user: {}", e)))?;
     Ok(user)
 }
 
@@ -29,8 +30,7 @@ pub async fn get_user_by_id(pool: &PgPool, id: Uuid) -> Result<User> {
     Ok(sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1")
         .bind(id)
         .fetch_one(pool)
-        .await?
-    )
+        .await?)
 }
 
 pub async fn get_user_by_email(pool: &PgPool, email: &str) -> Result<User> {
@@ -68,11 +68,11 @@ pub async fn update_user_profile(
     .bind(avatar_url)
     .fetch_one(pool)
     .await
-    .map_err(|e| AppError::InternalError(format!("Failed to update user: {}", e)))?;
+    .map_err(|e| AppError::Internal(format!("Failed to update user: {}", e)))?;
     Ok(user)
 }
 
-pub async fn search_user(pool: &PgPool, query: &str, limit: u16) -> Result<Vec<User>> {
+pub async fn search_user(pool: &PgPool, query: &str, limit: i32) -> Result<Vec<User>> {
     let pattern = format!("%{}%", query.to_lowercase());
     Ok(sqlx::query_as::<_, User>(
         "SELECT * FROM users WHERE LOWER(username) LIKE $1 OR LOWER(display_name) LIKE $1 LIMIT $2",

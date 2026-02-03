@@ -8,13 +8,14 @@ axum = "0.7"               # Web framework
 tokio = "1.35"             # Async runtime
 tower = "0.4"              # Middleware
 tower-http = "0.5"         # HTTP middleware (CORS, tracing, etc)
-sqlx = "0.7"               # Async SQL (PostgreSQL)
+sqlx = { version = "0.7", features = ["runtime-tokio", "postgres", "uuid", "chrono"] }
 redis = "0.24"             # Redis client
 serde = "1.0"              # Serialization
 serde_json = "1.0"         # JSON
 jsonwebtoken = "9.2"       # JWT auth
 uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1"
 bcrypt = "0.15"            # Password hashing
 tracing = "0.1"            # Logging/tracing
 tracing-subscriber = "0.3" # Tracing setup
