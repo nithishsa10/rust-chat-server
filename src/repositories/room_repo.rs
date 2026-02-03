@@ -1,7 +1,7 @@
-use sqlx::{PgPool, pool};
+use sqlx::PgPool;
 use uuid::Uuid;
-use crate::models::room::{self, Room};
-use crate::error::{AppError, Result};
+use crate::models::room::Room;
+use crate::error::Result;
 
 pub async fn create_room(
     pool: &PgPool,

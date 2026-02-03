@@ -9,7 +9,7 @@ tokio = "1.35"             # Async runtime
 tower = "0.4"              # Middleware
 tower-http = "0.5"         # HTTP middleware (CORS, tracing, etc)
 sqlx = { version = "0.7", features = ["runtime-tokio", "postgres", "uuid", "chrono"] }
-redis = "0.24"             # Redis client
+redis = { version = "0.24", features = ["aio", "connection-manager"] }
 serde = "1.0"              # Serialization
 serde_json = "1.0"         # JSON
 jsonwebtoken = "9.2"       # JWT auth
