@@ -1,26 +1,25 @@
-version: '3.9'
 services:
   postgres:
-    image: postgres:16-alpha
+    image: postgres:16-alpine
     container_name: chat-postgres
     environment:
-      POSTGERS_USER: user
-      POSTGRES_POSSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "123"
       POSTGRES_DB: chatdb
     ports:
       - "5432:5432"
     volumes:
-      - "pg_data:/var/lib/postgresql/data" 
-      - "migraions:/docker-entrypoint-initdb.d" # docker entrypoint script for migrations
+      - pg_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d chatdb"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d chatdb"]
       interval: 5s
       timeout: 3s
       retries: 5
       start_period: 15s
 
   redis:
-    image: redis:7-alpha
+    image: redis:7-alpine
     container_name: chat-redis
     ports:
       - "6379:6379"
@@ -30,29 +29,27 @@ services:
       timeout: 3s
       retries: 5
       start_period: 15s
-    
+
   chat-server:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: chat-server
-  ports:
-    -"8080:8080"
-  environment:
-    DATABASE_URL: postgres://user:password@postgres:5432/chatdb
-    REDIS_URL: redis://redis:6379/0
-    JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
-    JWT_EXPIRY_SECS: "86400"
-    JWT_REFRESH_EXPIRY_SECS: "604800"
-    HOST: 0.0.0.0
-    PORT: "8080"
-    RUST_LOG: info
-  depends_on:
-    posgres: 
-      condition: service_healthy
-    redis:
-      condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://postgres:123@postgres:5432/chatdb
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: dev-secret-change-me
+      JWT_EXPIRY_SECS: "86400"
+      HOST: 0.0.0.0
+      PORT: "8080"
+      RUST_LOG: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   pg_data:
-  

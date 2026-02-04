@@ -1,6 +1,8 @@
 use bcrypt;
 use crate::error::{AppError, Result};
 
+const BCRYPT_COST: u32 = 12;
+
 pub fn hash_password(plain: &str) -> Result<String> {
     bcrypt::hash(plain, BCRYPT_COST).map_err(AppError::from)
 }

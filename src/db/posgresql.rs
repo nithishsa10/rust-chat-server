@@ -1,7 +1,8 @@
 use sqlx::{PgPool, Error};
+use crate::error::{AppError, Result};
 
-pub async fn create_pool(url: &str) -> Result<PgPool, Error> {
+pub async fn create_pool(url: &str) -> Result<PgPool> {
     PgPool::connect(url)
     .await
-    .map_err(|e| AppError::DatabaseError(format!("Postgres connection error: {}", e)))
+    .map_err(|e| AppError::Database(e))
 }
