@@ -10,6 +10,7 @@ pub struct Session {
     pub last_active: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthTokens {
     pub access_token:     String,
     pub refresh_token:    String,

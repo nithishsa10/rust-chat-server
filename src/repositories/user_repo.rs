@@ -7,7 +7,7 @@ pub async fn create_user(
     username: &str,
     email: &str,
     password_hash: &str,
-    display_name: &str
+    display_name: Option<&str>
 ) -> Result<User> {
     let mut user = sqlx::query_as::<_, User> (
         r#"

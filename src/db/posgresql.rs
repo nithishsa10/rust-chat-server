@@ -1,4 +1,4 @@
-use sqlx::{PgPool, Error};
+use sqlx::PgPool;
 use crate::error::{AppError, Result};
 
 pub async fn create_pool(url: &str) -> Result<PgPool> {

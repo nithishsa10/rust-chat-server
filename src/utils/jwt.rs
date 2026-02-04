@@ -18,7 +18,7 @@ pub struct Claims {
 impl Claims {
     pub fn user_id(&self) -> Result<Uuid> {
         Uuid::parse_str(&self.sub)
-            .map_err(|_| AppError::Unatuhorized("Invalid user_id in token".into()))
+            .map_err(|_| AppError::Unauthorized("Invalid user_id in token".into()))
     }
 }
 

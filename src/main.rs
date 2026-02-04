@@ -4,7 +4,7 @@ mod error;
 mod handlers;
 mod db;
 mod websocket;
-mod service;
+mod services;
 mod utils;
 mod config;
 
