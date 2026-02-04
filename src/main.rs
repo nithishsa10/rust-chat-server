@@ -32,7 +32,7 @@ pub struct AppState {
 async fn main() {
     let _ = dotenv::dotenv();
 
-    let env_filter = EnvFilter::from_default_env()
+    let env_filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::new("info"));
 
     fmt()
@@ -46,11 +46,11 @@ async fn main() {
         .await
         .expect("Failed to connect to postgres database");
     
-    let redis = db::redis::create_client(&cfg.redis_url)
-        .expect("Failed to connect to redis");
+    // let redis = db::redis::create_client(&cfg.redis_url)
+    //     .expect("Failed to connect to redis");
     
     let state = AppState {
-        pool: DbPool { pool: pg, redis },
+        pool: DbPool { pool: pg },
         hub: Hub::new()
     };
 
