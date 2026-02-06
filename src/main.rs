@@ -7,6 +7,7 @@ mod websocket;
 mod services;
 mod utils;
 mod config;
+mod logging;
 
 use axum::{
     routing::{get, post, put, delete},
@@ -31,13 +32,14 @@ pub struct AppState {
 #[tokio::main]
 async fn main() {
     let _ = dotenv::dotenv();
+    logging::init_logging();
 
-    let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info"));
+    // let env_filter = EnvFilter::try_from_default_env()
+    //     .unwrap_or_else(|_| EnvFilter::new("info"));
 
-    fmt()
-        .with_env_filter(env_filter)
-        .init();
+    // fmt()
+    //     .with_env_filter(env_filter)
+    //     .init();
 
     let cfg = Config::from_env().expect("Failed to load config");
     tracing::info!("Starting rust-chat-server on {}:{}", cfg.host, cfg.port);
@@ -55,8 +57,9 @@ async fn main() {
     };
 
     let app = Router::new()
+        .route("/health", get(health_check))
+
         .route("/api/auth/register", post(handlers::auth::register))
-        .route("/test", get(test()))
 
         .layer(TraceLayer::new_for_http())
         .layer(
@@ -88,6 +91,6 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-fn test() -> String {
-    String::from("Hello World")
+async fn health_check() -> axum::Json<serde_json::Value> {
+    axum::Json(serde_json::json!({ "status": "ok" }))
 }

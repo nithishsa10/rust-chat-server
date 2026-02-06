@@ -19,6 +19,7 @@ thiserror = "1"
 bcrypt = "0.15"            # Password hashing
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-appender = "0.2"
 tokio-stream = "0.1"
 rand = "0.8"
 dotenv = "0.15"
