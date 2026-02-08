@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
-// ──────────── Client → Server ─────────────────────────
+// Client → Server 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ClientMessage {
@@ -15,7 +15,7 @@ pub enum ClientMessage {
     Ping,
 }
 
-// ──────────── Server → Client ─────────────────────────
+//  Server → Client 
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ServerMessage {

@@ -60,6 +60,7 @@ async fn main() {
         .route("/health", get(health_check))
 
         .route("/api/auth/register", post(handlers::auth::register))
+        .route("/api/auth/login", post(handlers::auth::login))
 
         .layer(TraceLayer::new_for_http())
         .layer(

@@ -2,8 +2,6 @@ use tracing_subscriber::{fmt, layer::{SubscriberExt, Layer}, util::SubscriberIni
 use tracing_subscriber::EnvFilter;
 use tracing_appender::rolling;
 
-use tracing::Level;
-
 pub fn init_logging() {
     // FILE APPENDERS 
     let access_file = rolling::daily("logs", "access.log");
@@ -20,7 +18,9 @@ pub fn init_logging() {
     let access_layer = fmt::layer()
         .with_writer(access_writer)
         .with_ansi(false)
-        .with_target(false)
+        .with_target(true)
+        .with_file(true)
+        .with_line_number(true)
         .with_level(true)
         .with_filter(
             EnvFilter::new("tower_http=info")

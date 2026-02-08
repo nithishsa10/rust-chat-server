@@ -47,10 +47,10 @@ pub async fn register(db: &DbPool, req: &RegisterRequest) -> Result<(UserRespons
     if !is_valid_email(&req.email).await {
         return Err(AppError::BadRequest("Invalid email address".into()));
     }
-    if matches!(user_repo::get_user_by_username(&db.pool, &req.username).await, Ok(_)) {
+    if user_repo::get_user_by_username(&db.pool, &req.username).await?.is_some() {
         return Err(AppError::Conflict("Username already taken".into()));
     }
-    if matches!(user_repo::get_user_by_email(&db.pool, &req.email).await, Ok(_)) {
+    if user_repo::get_user_by_email(&db.pool, &req.email).await?.is_some() {
         return Err(AppError::Conflict("Email already registered".into()));
     }
 
@@ -60,6 +60,18 @@ pub async fn register(db: &DbPool, req: &RegisterRequest) -> Result<(UserRespons
     // store_session(pool, user_id, username);
     Ok((user.into(), token))
 }
+
+pub async fn login(db: &DbPool, req: &RegisterRequest) -> Result<(UserResponse, AuthTokens)> {
+    let user = user_repo::get_user_by_email(&db.pool, &req.email).await?
+        .ok_or_else(|| AppError::Unauthorized("Invalid email or password".into()))?;
+
+    if !password::verify_password(&req.password, &user.password_hash)? {
+        return Err(AppError::Unauthorized("Invalid password".into()));
+    }
+    let token = make_tokens(user.id, &user.username)?;
+    Ok((user.into(), token))
+}
+
 
 async fn is_valid_email(email: &str) -> bool {
     if email.contains("@") {
