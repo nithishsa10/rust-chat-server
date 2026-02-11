@@ -48,11 +48,14 @@ async fn main() {
         .await
         .expect("Failed to connect to postgres database");
     
-    // let redis = db::redis::create_client(&cfg.redis_url)
-    //     .expect("Failed to connect to redis");
+    let redis = db::redisdb::create_connection_manager(&cfg.redis_url).await
+        .expect("Failed to connect to redis");
     
     let state = AppState {
-        pool: DbPool { pool: pg },
+        pool: DbPool { 
+            pool: pg,
+            redis: redis
+        },
         hub: Hub::new()
     };
 

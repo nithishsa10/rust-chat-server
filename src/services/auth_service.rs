@@ -47,22 +47,22 @@ pub async fn register(db: &DbPool, req: &RegisterRequest) -> Result<(UserRespons
     if !is_valid_email(&req.email).await {
         return Err(AppError::BadRequest("Invalid email address".into()));
     }
-    if user_repo::get_user_by_username(&db.pool, &req.username).await?.is_some() {
+    if user_repo::get_user_by_username(&db.pg, &req.username).await?.is_some() {
         return Err(AppError::Conflict("Username already taken".into()));
     }
-    if user_repo::get_user_by_email(&db.pool, &req.email).await?.is_some() {
+    if user_repo::get_user_by_email(&db.pg, &req.email).await?.is_some() {
         return Err(AppError::Conflict("Email already registered".into()));
     }
 
     let hashed = password::hash_password(&req.password)?;
-    let user = user_repo::create_user(&db.pool, &req.username, &req.email, &hashed, req.display_name.as_deref()).await?;
+    let user = user_repo::create_user(&db.pg, &req.username, &req.email, &hashed, req.display_name.as_deref()).await?;
     let token = make_tokens(user.id, &user.username)?;
     // store_session(pool, user_id, username);
     Ok((user.into(), token))
 }
 
 pub async fn login(db: &DbPool, req: &RegisterRequest) -> Result<(UserResponse, AuthTokens)> {
-    let user = user_repo::get_user_by_email(&db.pool, &req.email).await?
+    let user = user_repo::get_user_by_email(&db.pg, &req.email).await?
         .ok_or_else(|| AppError::Unauthorized("Invalid email or password".into()))?;
 
     if !password::verify_password(&req.password, &user.password_hash)? {
@@ -80,3 +80,11 @@ async fn is_valid_email(email: &str) -> bool {
     false
 }
 
+pub async fn refresh_token(token: &str) -> Result<AuthTokens> {
+    let (secret, _, _) = read_jwt_env();
+    let claims = jwt::verify_token(token, &secret)?;
+    if claims.token_type != "refresh" {
+        return Err(AppError::Unauthorized("Not a valid refresh token".into()));
+    }
+    return make_tokens(claims.user_id()?, &claims.username);
+}

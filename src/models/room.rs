@@ -24,8 +24,8 @@ pub struct RoomMember {
 #[derive(Debug, Deserialize)]
 pub struct CreateRoomRequest {
     pub name:           String,
-    pub description:    String,
-    pub is_private:     bool
+    pub description:    Option<String>,
+    pub is_private:     Option<bool>
 }
 
 #[derive(Debug, Deserialize)]

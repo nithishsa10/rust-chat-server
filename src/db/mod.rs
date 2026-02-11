@@ -1,11 +1,11 @@
 pub mod posgresql;
-// pub mod redis;
+pub mod redisdb;
 
 use sqlx::PgPool;
 use redis::aio::ConnectionManager;
 
 #[derive(Clone)]
 pub struct DbPool {
-    pub pool: PgPool,
-    // pub redis: ConnectionManager
+    pub pg: PgPool,
+    pub redis: ConnectionManager
 }

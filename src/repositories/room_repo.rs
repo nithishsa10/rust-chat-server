@@ -26,12 +26,11 @@ pub async fn create_room(
     Ok(room)
 }
 
-pub async fn get_room_by_id(pool: &PgPool, id: Uuid) -> Result<Room> {
-    let room = sqlx::query_as::<_, Room>("SELECT * FROM rooms WHERE id = $1")
+pub async fn get_room(pool: &PgPool, id: Uuid) -> Result<Option<Room>> {
+    Ok(sqlx::query_as::<_, Room>("SELECT * FROM rooms WHERE id = $1")
         .bind(id)
-        .fetch_one(pool)
-        .await?;
-    Ok(room)
+        .fetch_optional(pool)
+        .await?)
 }
 
 pub async fn list_room(pool: &PgPool, include_private: bool, limit: i32) -> Result<Vec<Room>> {
@@ -79,4 +78,16 @@ pub async fn delete_room(pool: &PgPool, id: Uuid) -> Result<Room> {
         .fetch_one(pool)
         .await?;
     Ok(room)
+}
+
+pub async fn add_room_member(pool: &PgPool, room_id: Uuid, user_id: Uuid, role: &str) -> Result<()> {
+    sqlx::query(
+        "INSERT INTO room_members (room_id, user_id, role) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
+    )
+    .bind(room_id)
+    .bind(user_id)
+    .bind(role)
+    .execute(pool)
+    .await?;
+    Ok(())
 }
