@@ -10,7 +10,7 @@ use crate::utils::jwt::{self, Claims};
 pub struct AuthUser(pub Claims);
 
 impl AuthUser {
-    pub fn cliams(&self) -> &Claims {
+    pub fn claims(&self) -> &Claims {
         &self.0
     }
 }
@@ -28,7 +28,7 @@ fn extract_bearer(header: &HeaderMap) -> Result<&str> {
 
 
 #[axum::async_trait]
-impl<S> FromRequest<S> for AuthUser 
+impl<S> FromRequest<S> for AuthUser
 where S: Send + Sync
 {
     type Rejection = AppError;
@@ -36,7 +36,7 @@ where S: Send + Sync
     async fn from_request(req: Request<Body>, _state: &S) -> std::result::Result<Self, Self::Rejection> {
         let header = req.headers();
         let token = extract_bearer(header)?;
-        let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());   
+        let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
         let claims = jwt::verify_token(token, &secret)?;
 
         if claims.token_type != "access" {

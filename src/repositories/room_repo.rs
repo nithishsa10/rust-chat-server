@@ -1,6 +1,6 @@
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::models::room::Room;
+use crate::models::room::{Room, RoomMember};
 use crate::error::Result;
 
 pub async fn create_room(
@@ -56,12 +56,14 @@ pub async fn update_room(
     is_private: Option<bool>
 ) -> Result<Room> {
     let room = sqlx::query_as::<_, Room>(
-        "#r
-        Update rooms
-        SET name = $2, description = $3, is_private = $4
+        r#"
+        UPDATE rooms
+        SET name        = COALESCE($2, name),
+            description = COALESCE($3, description)
+            is_private  = COALESCE($4, is_private)
         WHERE id = $1
         RETURNING *
-        ",
+        "#,
     )
     .bind(id)
     .bind(name)
@@ -72,12 +74,12 @@ pub async fn update_room(
     Ok(room)
 }
 
-pub async fn delete_room(pool: &PgPool, id: Uuid) -> Result<Room> {
-    let room = sqlx::query_as::<_, Room>("DELETE FROM rooms WHERE id = $1 RETURNING *")
+pub async fn delete_room(pool: &PgPool, id: Uuid) -> Result<u64> {
+    let result = sqlx::query("DELETE FROM rooms WHERE id = $1")
         .bind(id)
-        .fetch_one(pool)
+        .execute(pool)
         .await?;
-    Ok(room)
+    Ok(result.rows_affected())
 }
 
 pub async fn add_room_member(pool: &PgPool, room_id: Uuid, user_id: Uuid, role: &str) -> Result<()> {
@@ -90,4 +92,42 @@ pub async fn add_room_member(pool: &PgPool, room_id: Uuid, user_id: Uuid, role: 
     .execute(pool)
     .await?;
     Ok(())
+}
+
+pub async fn remove_room_member(pool: &PgPool, room_id: Uuid, user_id: Uuid) -> Result<()> {
+    sqlx::query("DELETE FROM room_members WHERE room_id = $1 AND user_id = $2")
+        .bind(room_id)
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+pub async fn get_room_members(pool: &PgPool, room_id: Uuid) -> Result<Vec<RoomMember>> {
+    Ok(sqlx::query_as::<_, RoomMember>("SELECT * FROM room_members WHERE room_id = $1")
+        .bind(room_id)
+        .fetch_all(pool)
+        .await?)
+}
+
+pub async fn is_room_member(pool: &PgPool, room_id: Uuid, user_id: Uuid) -> Result<bool> {
+    let count: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM room_members WHERE room_id = $1 AND user_id = $2",
+    )
+    .bind(room_id)
+    .bind(user_id)
+    .fetch_one(pool)
+    .await?;
+    Ok(count > 0)
+}
+
+
+pub async fn get_member_role(pool: &PgPool, room_id: Uuid, user_id: Uuid) -> Result<Option<String>> {
+    Ok(sqlx::query_scalar::<_, String>(
+        "SELECT role FROM room_members WHERE room_id = $1 AND user_id = $2",
+    )
+    .bind(room_id)
+    .bind(user_id)
+    .fetch_optional(pool)
+    .await?)
 }
