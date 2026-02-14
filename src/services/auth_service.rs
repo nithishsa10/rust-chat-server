@@ -88,3 +88,9 @@ pub async fn refresh_token(token: &str) -> Result<AuthTokens> {
     }
     return make_tokens(claims.user_id()?, &claims.username);
 }
+
+pub async fn get_current_user(db: &DbPool, user_id: Uuid) -> Result<UserResponse> {
+    let user = user_repo::get_user_by_id(&db.pg, user_id).await?
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+    Ok(user.into())
+}

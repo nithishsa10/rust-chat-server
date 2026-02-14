@@ -8,6 +8,7 @@ mod services;
 mod utils;
 mod config;
 mod logging;
+mod middleware;
 
 use axum::{
     routing::{get, post, put, delete},
@@ -53,8 +54,8 @@ async fn main() {
     
     let state = AppState {
         pool: DbPool { 
-            pool: pg,
-            redis: redis
+            pg,
+            redis
         },
         hub: Hub::new()
     };

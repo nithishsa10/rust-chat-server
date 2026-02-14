@@ -15,7 +15,6 @@ pub struct Connection {
 
 /// Spawn the reader loop for a single WebSocket.
 /// Returns the receiver half so the hub can feed outgoing frames.
-// ...existing code...
 pub async fn run_connection(
     mut socket: WebSocket,
     user_id:    Uuid,
@@ -58,7 +57,7 @@ pub async fn run_connection(
                         warn!("WebSocket error for user {user_id}: {e}");
                         break;
                     }
-                    _ => {} // ping/pong/binary – ignore
+                    _ => {}
                 }
             }
             // Outgoing frame from hub
