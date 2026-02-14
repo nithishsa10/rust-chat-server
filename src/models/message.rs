@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, sqlx::FromRow,)]
 pub struct Message {
     pub id:             Uuid,
-    pub rood_id:        Uuid,
+    pub room_id:        Uuid,
     pub sender_id:      Uuid,
     pub content:        String,
     pub message_type:   String,
